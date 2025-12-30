@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue Test Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .card h2 {
+            color: #7C3AED;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #7C3AED;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #7C3AED;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #7C3AED;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #6D28D9;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.secondary {
+            background: #10B981;
+        }
+        button.secondary:hover {
+            background: #059669;
+        }
+        button.danger {
+            background: #EF4444;
+        }
+        button.danger:hover {
+            background: #DC2626;
+        }
+        .queue-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .queue-item {
+            background: #F3F4F6;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #7C3AED;
+        }
+        .queue-item.serving {
+            border-left-color: #10B981;
+            background: #D1FAE5;
+        }
+        .queue-item strong {
+            color: #7C3AED;
+            font-size: 1.2em;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.waiting {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .status.serving {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .status.done {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        #output {
+            background: #1F2937;
+            color: #10B981;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success { color: #10B981; }
+        .error { color: #EF4444; }
+        .info { color: #60A5FA; }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #9CA3AF;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+        .refresh-btn {
+            background: #3B82F6;
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .refresh-btn:hover {
+            background: #2563EB;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 SmartQueue Test Dashboard</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="waitingCount">0</div>
+                <div class="stat-label">Waiting</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="servingCount">0</div>
+                <div class="stat-label">Serving</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">Total Today</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Customer: Join Queue -->
+            <div class="card">
+                <h2>👤 Customer: Join Queue</h2>
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="customerName" placeholder="Enter your name" value="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number (with country code)</label>
+                    <input type="text" id="phoneNumber" placeholder="+1234567890" value="+1234567890">
+                </div>
+                <button onclick="joinQueue()">Join Queue</button>
+                <button class="secondary" onclick="addMultipleCustomers()" style="margin-top: 10px;">Add 5 Test Customers</button>
+            </div>
+
+            <!-- Admin: Call Next -->
+            <div class="card">
+                <h2>🔔 Admin: Call Next Customer</h2>
+                <p style="color: #666; margin-bottom: 20px;">Click to call the next person in line</p>
+                <button class="secondary" onclick="callNext()">📞 Call Next Customer</button>
+                <button class="refresh-btn" onclick="refreshQueue()" style="margin-top: 10px;">🔄 Refresh Queue</button>
+            </div>
+
+            <!-- Queue Status -->
+            <div class="card">
+                <h2>📋 Current Queue</h2>
+                <div id="queueList" class="queue-list">
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <p>No customers in queue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="card">
+            <h2>📊 Console Output</h2>
+            <div id="output">Ready to test SmartQueue API...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        const BUSINESS_ID = '226b4b12-de98-40c8-a8ec-c3c24b0b3715';
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function joinQueue() {
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('phoneNumber').value;
+
+            if (!name || !phone) {
+                log('❌ Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                log(`📤 Joining queue as ${name}...`, 'info');
+                const response = await fetch(`${API_URL}/api/queue/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        business_id: BUSINESS_ID,
+                        customer_name: name,
+                        phone_number: phone
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log(`✅ Successfully joined! Position: ${data.queue_entry.position}, Wait: ${data.estimated_wait_time} mins`, 'success');
+                    refreshQueue();
+                } else {
+                    log(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function callNext() {
+            try {
+                log('📞 Calling next customer...', 'info');
+                const response = await fetch(`${API_URL}/api/queue/next/${BUSINESS_ID}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log(`✅ Called: ${data.customer.customer_name} (${data.customer.phone_number})`, 'success');
+                    log(`   SMS Sent: ${data.sms_sent ? 'Yes ✓' : 'No (Twilio not configured)'}`, 'info');
+                    refreshQueue();
+                } else {
+                    log(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function refreshQueue() {
+            try {
+                const response = await fetch(`${API_URL}/api/queue/list/${BUSINESS_ID}`);
+                const data = await response.json();
+
+                // Update stats
+                const allQueues = await fetch(`${API_URL}/api/queue/list/${BUSINESS_ID}`);
+                const allData = await allQueues.json();
+                
+                // Count by status
+                let waiting = 0, serving = 0, total = 0;
+                
+                // Get all records to count
+                const allResponse = await fetch(`https://ehygofstivdylpkwlcug.supabase.co/rest/v1/queues?business_id=eq.${BUSINESS_ID}&select=status`, {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k'
+                    }
+                });
+                const records = await allResponse.json();
+                records.forEach(r => {
+                    if (r.status === 'waiting') waiting++;
+                    else if (r.status === 'serving') serving++;
+                    total++;
+                });
+
+                document.getElementById('waitingCount').textContent = waiting;
+                document.getElementById('servingCount').textContent = serving;
+                document.getElementById('totalCount').textContent = total;
+
+                // Update queue list
+                const queueList = document.getElementById('queueList');
+                if (data.queue.length === 0) {
+                    queueList.innerHTML = `
+                        <div class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p>Queue is empty! ✨</p>
+                        </div>
+                    `;
+                } else {
+                    queueList.innerHTML = data.queue.map(customer => `
+                        <div class="queue-item">
+                            <strong>#${customer.position}</strong>
+                            <span class="status ${customer.status}">${customer.status.toUpperCase()}</span>
+                            <div style="margin-top: 8px; color: #333;">
+                                👤 ${customer.customer_name}<br>
+                                📞 ${customer.phone_number}<br>
+                                ⏱️ Wait: ${customer.estimated_wait_time} minutes
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                log(`🔄 Queue refreshed: ${data.total_waiting} waiting`, 'success');
+            } catch (error) {
+                log(`❌ Failed to refresh: ${error.message}`, 'error');
+            }
+        }
+
+        async function addMultipleCustomers() {
+            const names = ['Alice Johnson', 'Bob Smith', 'Carol Williams', 'David Brown', 'Emma Davis'];
+            log('📤 Adding 5 test customers...', 'info');
+            
+            for (let i = 0; i < names.length; i++) {
+                try {
+                    await fetch(`${API_URL}/api/queue/join`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            business_id: BUSINESS_ID,
+                            customer_name: names[i],
+                            phone_number: `+123456789${i}`
+                        })
+                    });
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                } catch (error) {
+                    log(`❌ Failed to add ${names[i]}`, 'error');
+                }
+            }
+            
+            log('✅ Added 5 test customers!', 'success');
+            refreshQueue();
+        }
+
+        // Auto-refresh every 5 seconds
+        setInterval(refreshQueue, 5000);
+
+        // Initial load
+        refreshQueue();
+    </script>
+</body>
+</html>
