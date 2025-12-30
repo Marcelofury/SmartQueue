@@ -103,7 +103,7 @@ class AdminTheme {
       ),
       
       // Card theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: cardBg,
         elevation: 0,
         shadowColor: textPrimary.withOpacity(0.05),
