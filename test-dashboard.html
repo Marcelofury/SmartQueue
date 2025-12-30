@@ -234,9 +234,11 @@
 
             <!-- Admin: Call Next -->
             <div class="card">
-                <h2>🔔 Admin: Call Next Customer</h2>
-                <p style="color: #666; margin-bottom: 20px;">Click to call the next person in line</p>
+                <h2>🔔 Admin: Actions</h2>
+                <p style="color: #666; margin-bottom: 15px;">Manage queue and optimize service</p>
                 <button class="secondary" onclick="callNext()">📞 Call Next Customer</button>
+                <button class="danger" onclick="completeService()" style="margin-top: 10px;">✅ Complete Current Service</button>
+                <button onclick="runAIPredictor()" style="margin-top: 10px; background: #F59E0B;">🤖 Run AI Predictor</button>
                 <button class="refresh-btn" onclick="refreshQueue()" style="margin-top: 10px;">🔄 Refresh Queue</button>
             </div>
 
@@ -410,6 +412,101 @@
             
             log('✅ Added 5 test customers!', 'success');
             refreshQueue();
+        }
+
+        async function completeService() {
+            try {
+                // First, get who's currently being served
+                const allResponse = await fetch(`https://ehygofstivdylpkwlcug.supabase.co/rest/v1/queues?business_id=eq.${BUSINESS_ID}&status=eq.serving&select=*`, {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k'
+                    }
+                });
+                const serving = await allResponse.json();
+                
+                if (serving.length === 0) {
+                    log('⚠️ No customer currently being served', 'error');
+                    return;
+                }
+
+                const customer = serving[0];
+                log(`📝 Completing service for ${customer.customer_name}...`, 'info');
+
+                const response = await fetch(`${API_URL}/api/queue/complete/${customer.id}`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log(`✅ Service completed for ${customer.customer_name}`, 'success');
+                    refreshQueue();
+                } else {
+                    log(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function runAIPredictor() {
+            try {
+                log('🤖 Running AI Predictor to optimize service time...', 'info');
+                
+                // Fetch last 5 completed tickets and calculate average
+                const response = await fetch(`https://ehygofstivdylpkwlcug.supabase.co/rest/v1/queues?business_id=eq.${BUSINESS_ID}&status=eq.done&order=updated_at.desc&limit=5&select=created_at,updated_at`, {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k'
+                    }
+                });
+                
+                const completedTickets = await response.json();
+                
+                if (completedTickets.length === 0) {
+                    log('⚠️ No completed tickets yet. Complete at least 1 service to run AI Predictor.', 'error');
+                    return;
+                }
+
+                // Calculate actual service times
+                const serviceTimes = completedTickets.map(ticket => {
+                    const created = new Date(ticket.created_at);
+                    const completed = new Date(ticket.updated_at);
+                    return Math.round((completed - created) / 1000 / 60); // minutes
+                }).filter(time => time >= 1 && time <= 120);
+
+                if (serviceTimes.length === 0) {
+                    log('⚠️ No valid service times found', 'error');
+                    return;
+                }
+
+                const avgTime = Math.round(serviceTimes.reduce((a, b) => a + b, 0) / serviceTimes.length);
+                const currentAvg = 15; // Default
+
+                log(`📊 AI Predictor Results:`, 'success');
+                log(`   Analyzed: ${serviceTimes.length} completed tickets`, 'info');
+                log(`   Service times: ${serviceTimes.join(', ')} minutes`, 'info');
+                log(`   Current avg: ${currentAvg} minutes`, 'info');
+                log(`   Calculated avg: ${avgTime} minutes`, 'success');
+                log(`   Improvement: ${((avgTime - currentAvg) / currentAvg * 100).toFixed(1)}%`, avgTime < currentAvg ? 'success' : 'info');
+
+                // Update the business avg_service_time
+                await fetch(`https://ehygofstivdylpkwlcug.supabase.co/rest/v1/businesses?id=eq.${BUSINESS_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoeWdvZnN0aXZkeWxwa3dsY3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODQ1NDQsImV4cCI6MjA4MjY2MDU0NH0.dUQZr2o14GRRVrQ1FsxlCv0R_nY1N-wCFA7Sb8YGW1k',
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ avg_service_time: avgTime })
+                });
+
+                log(`✅ Updated average service time to ${avgTime} minutes`, 'success');
+                refreshQueue();
+            } catch (error) {
+                log(`❌ AI Predictor error: ${error.message}`, 'error');
+            }
         }
 
         // Auto-refresh every 5 seconds
