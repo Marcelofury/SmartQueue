@@ -1,0 +1,48 @@
+# Ignore node modules and dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Ignore environment files with sensitive data
+.env
+.env.local
+.env.*.local
+backend/.env
+flutter_customer/.env
+flutter_admin/.env
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore build outputs
+backend/dist/
+backend/build/
+flutter_customer/build/
+flutter_admin/build/
+*.log
+
+# Ignore Flutter specific files
+flutter_customer/.flutter-plugins
+flutter_customer/.flutter-plugins-dependencies
+flutter_customer/.dart_tool/
+flutter_admin/.flutter-plugins
+flutter_admin/.flutter-plugins-dependencies
+flutter_admin/.dart_tool/
+
+# Ignore Docker volumes
+docker-volumes/
+
+# Ignore test and coverage
+coverage/
+*.test.js
+test/
