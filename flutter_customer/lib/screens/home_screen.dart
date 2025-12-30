@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _errorMessage;
 
   // Default business ID - in production, get from QR or selection
-  final String _defaultBusinessId = 'YOUR_BUSINESS_ID_HERE';
+  final String _defaultBusinessId = '226b4b12-de98-40c8-a8ec-c3c24b0b3715';
 
   @override
   void dispose() {
