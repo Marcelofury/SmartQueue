@@ -94,7 +94,7 @@ class AppTheme {
       ),
       
       // Card theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: white,
         elevation: 2,
         shadowColor: darkGray.withOpacity(0.1),
