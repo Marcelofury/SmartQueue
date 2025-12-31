@@ -30,20 +30,20 @@ class _USSDScreenState extends State<USSDScreen> {
   void _showMainMenu() {
     setState(() {
       _displayText = '''
-━━━━━━━━━━━━━━━━━━
-   SMARTQUEUE
-━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━
+       SMARTQUEUE PHARMACY
+    ━━━━━━━━━━━━━━━━━━
 
-Welcome to SmartQueue
-Virtual Queue System
+    Welcome to SmartQueue Pharmacy
+    Virtual Queue System
 
-[1] Join Queue
-[2] Check Status
-[3] About
-[0] Exit
+    [1] Join Queue
+    [2] Check Status
+    [3] About
+    [0] Exit
 
-━━━━━━━━━━━━━━━━━━
-Enter option:''';
+    ━━━━━━━━━━━━━━━━━━
+    Enter option:''';
       _currentMenu = 'main';
     });
   }
@@ -51,19 +51,19 @@ Enter option:''';
   void _showJoinMenu() {
     setState(() {
       _displayText = '''
-━━━━━━━━━━━━━━━━━━
-   JOIN QUEUE
-━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━
+       JOIN QUEUE
+    ━━━━━━━━━━━━━━━━━━
 
-Sample College Clinic
-Avg. Service: 15 min
+    SmartQueue Pharmacy
+    Avg. Service: 15 min
 
-[1] Enter Name
-[9] Back
-[0] Main Menu
+    [1] Enter Name
+    [9] Back
+    [0] Main Menu
 
-━━━━━━━━━━━━━━━━━━
-Enter option:''';
+    ━━━━━━━━━━━━━━━━━━
+    Enter option:''';
       _currentMenu = 'join';
     });
   }
@@ -96,26 +96,26 @@ Enter option:''';
   void _showAboutMenu() {
     setState(() {
       _displayText = '''
-━━━━━━━━━━━━━━━━━━
-     ABOUT
-━━━━━━━━━━━━━━━━━━
+    ━━━━━━━━━━━━━━━━━━
+         ABOUT
+    ━━━━━━━━━━━━━━━━━━
 
-SmartQueue v1.0
-Virtual Queue System
+    SmartQueue v1.0
+    Virtual Queue System
 
-College MVP Project
+    Pharmacy MVP Project
 
-Features:
-• QR Code Check-in
-• Real-time Updates
-• Wait Time Estimates
-• Mobile App Support
+    Features:
+    • QR Code Check-in
+    • Real-time Updates
+    • Wait Time Estimates
+    • Mobile App Support
 
-[9] Back
-[0] Main Menu
+    [9] Back
+    [0] Main Menu
 
-━━━━━━━━━━━━━━━━━━
-Enter option:''';
+    ━━━━━━━━━━━━━━━━━━
+    Enter option:''';
       _currentMenu = 'about';
     });
   }
