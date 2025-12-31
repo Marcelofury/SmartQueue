@@ -27,12 +27,25 @@ class AdminService {
     required String password,
   }) async {
     try {
+      print('Attempting login for: $email');
+      
+      // Query admin_users table with timeout
       final response = await client
           .from('admin_users')
           .select('id, email, full_name')
           .eq('email', email)
-          .single();
+          .maybeSingle()
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw Exception('Connection timeout - please check your internet'),
+          );
 
+      if (response == null) {
+        throw Exception('Invalid email or password');
+      }
+
+      print('User found: ${response['email']}');
+      
       // In production, verify password hash
       // For now, accepting any password for demo
       _currentUserId = response['id'];
@@ -42,9 +55,17 @@ class AdminService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('admin_user_id', _currentUserId!);
       await prefs.setString('admin_email', _currentUserEmail!);
+      
+      print('Login successful for: $_currentUserEmail');
     } catch (e) {
       print('Login error: $e');
-      throw Exception('Invalid email or password. Error: $e');
+      if (e.toString().contains('timeout')) {
+        throw Exception('Connection timeout. Please check your internet connection.');
+      } else if (e.toString().contains('Failed host lookup')) {
+        throw Exception('Cannot connect to server. Please check your internet connection.');
+      } else {
+        throw Exception('Login failed: ${e.toString().replaceAll('Exception: ', '')}');
+      }
     }
   }
 
@@ -60,10 +81,17 @@ class AdminService {
 
   // Check if logged in
   Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    _currentUserId = prefs.getString('admin_user_id');
-    _currentUserEmail = prefs.getString('admin_email');
-    return _currentUserId != null;
+    try {
+      final prefs = await SharedPreferences.getInstance()
+          .timeout(const Duration(seconds: 5));
+      _currentUserId = prefs.getString('admin_user_id');
+      _currentUserEmail = prefs.getString('admin_email');
+      print('Login status check: ${_currentUserId != null}');
+      return _currentUserId != null;
+    } catch (e) {
+      print('Error checking login status: $e');
+      return false;
+    }
   }
 
   // Get current user ID
@@ -80,10 +108,12 @@ class AdminService {
           .from('businesses')
           .select()
           .eq('admin_user_id', _currentUserId!)
-          .order('created_at');
+          .order('created_at')
+          .timeout(const Duration(seconds: 10));
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      throw Exception('Failed to fetch businesses: $e');
+      print('Error fetching businesses: $e');
+      throw Exception('Failed to fetch businesses: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
 
@@ -95,9 +125,15 @@ class AdminService {
           .select('*')
           .eq('business_id', businessId)
           .eq('status', 'waiting')
-          .order('position', ascending: true);
+          .order('position', ascending: true)
+          .timeout(const Duration(seconds: 10));
 
       return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching queue: $e');
+      throw Exception('Failed to fetch queue: ${e.toString().replaceAll('Exception: ', '')}');
+    }
+  }
     } catch (e) {
       throw Exception('Failed to fetch waiting queue: $e');
     }
@@ -295,7 +331,8 @@ class AdminService {
   // Get queue statistics
   Future<Map<String, dynamic>> getQueueStatistics(String businessId) async {
     try {
-      final allEntries = await getAllQueueEntries(businessId);
+      final allEntries = await getAllQueueEntries(businessId)
+          .timeout(const Duration(seconds: 10));
 
       final waiting = allEntries.where((e) => e['status'] == 'waiting').length;
       final serving = allEntries.where((e) => e['status'] == 'serving').length;
@@ -306,7 +343,8 @@ class AdminService {
           .from('businesses')
           .select('avg_service_time')
           .eq('id', businessId)
-          .single();
+          .single()
+          .timeout(const Duration(seconds: 10));
 
       final avgServiceTime = business['avg_service_time'] as int;
 
@@ -319,7 +357,8 @@ class AdminService {
         'estimated_total_wait': waiting * avgServiceTime,
       };
     } catch (e) {
-      throw Exception('Failed to get statistics: $e');
+      print('Error getting statistics: $e');
+      throw Exception('Failed to get statistics: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
 }

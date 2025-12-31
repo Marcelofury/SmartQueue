@@ -31,22 +31,37 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
+      print('Login button pressed for: ${_emailController.text.trim()}');
+      
       await _adminService.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () => throw Exception('Login timeout. Please try again.'),
       );
 
+      print('Login successful, navigating to dashboard');
+      
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const DashboardScreen()),
         );
       }
     } catch (e) {
+      print('Login failed: $e');
       if (mounted) {
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Login failed: ${e.toString()}'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: _handleLogin,
+            ),
           ),
         );
       }

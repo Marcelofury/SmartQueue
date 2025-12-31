@@ -24,12 +24,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _loadBusinesses();
+    // Load businesses after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBusinesses();
+    });
   }
 
   Future<void> _loadBusinesses() async {
     try {
-      final businesses = await _adminService.getAllBusinesses();
+      final businesses = await _adminService.getAllBusinesses()
+          .timeout(const Duration(seconds: 10));
       if (businesses.isNotEmpty && mounted) {
         setState(() {
           _selectedBusiness = businesses[0];
@@ -38,7 +42,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadStatistics();
       }
     } catch (e) {
-      _showError('Failed to load businesses: $e');
+      print('Error loading businesses: $e');
+      _showError('Failed to load businesses: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
 

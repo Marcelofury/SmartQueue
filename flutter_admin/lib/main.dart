@@ -45,22 +45,40 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    // Check login status asynchronously without blocking
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLoginStatus();
+    });
   }
 
   Future<void> _checkLoginStatus() async {
-    final loggedIn = await _adminService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-      _isLoading = false;
-    });
+    try {
+      final loggedIn = await _adminService.isLoggedIn();
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = loggedIn;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Auth check error: $e');
+      if (mounted) {
+        setState(() {
+          _isLoggedIn = false;
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
