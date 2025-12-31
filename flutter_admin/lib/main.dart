@@ -43,49 +43,34 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   final _adminService = AdminService();
-  bool _isLoading = true;
-  bool _isLoggedIn = false;
+  late Future<bool> _loginCheckFuture;
 
   @override
   void initState() {
     super.initState();
-    // Check login status asynchronously without blocking
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLoginStatus();
-    });
-  }
-
-  Future<void> _checkLoginStatus() async {
-    try {
-      final loggedIn = await _adminService.isLoggedIn();
-      if (mounted) {
-        setState(() {
-          _isLoggedIn = loggedIn;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Auth check error: $e');
-      if (mounted) {
-        setState(() {
-          _isLoggedIn = false;
-          _isLoading = false;
-        });
-      }
-    }
+    // Start async check immediately without blocking
+    _loginCheckFuture = _adminService.isLoggedIn();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    return FutureBuilder<bool>(
+      future: _loginCheckFuture,
+      builder: (context, snapshot) {
+        // Show loading while checking
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
 
-    return _isLoggedIn ? const DashboardScreen() : const LoginScreen();
+        // Default to login screen on error or if not logged in
+        final isLoggedIn = snapshot.data ?? false;
+        return isLoggedIn ? const DashboardScreen() : const LoginScreen();
+      },
+    );
   }
 }

@@ -19,36 +19,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isRunningAI = false;
   Map<String, dynamic>? _statistics;
   String? _aiPredictorResult;
-  bool _isLoadingInitial = true;
+  late Future<void> _initFuture;
 
   @override
   void initState() {
     super.initState();
-    // Defer all loading to prevent UI blocking
-    Future.microtask(() => _initializeDashboard());
+    // Start initialization without blocking UI
+    _initFuture = _initializeDashboard();
   }
 
   Future<void> _initializeDashboard() async {
-    await _loadBusinesses();
-    // Small delay before loading statistics to let UI render
-    await Future.delayed(const Duration(milliseconds: 100));
-    await _loadStatistics();
-    if (mounted) {
-      setState(() {
-        _isLoadingInitial = false;
-      });
-    }
-  }
-
-  Future<void> _loadBusinesses() async {
     try {
+      // Load businesses
       final businesses = await _adminService.getAllBusinesses()
           .timeout(const Duration(seconds: 10));
+      
       if (businesses.isNotEmpty && mounted) {
         setState(() {
           _selectedBusiness = businesses[0];
           _selectedBusinessId = businesses[0]['id'];
         });
+        
+        // Load statistics in background
+        _loadStatistics();
       }
     } catch (e) {
       print('Error loading businesses: $e');
@@ -221,8 +214,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: _selectedBusinessId == null || _isLoadingInitial
-          ? const Center(
+      body: FutureBuilder<void>(
+        future: _initFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting || _selectedBusinessId == null) {
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -231,8 +227,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text('Loading dashboard...'),
                 ],
               ),
-            )
-          : SingleChildScrollView(
+            );
+          }
+          
+          return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

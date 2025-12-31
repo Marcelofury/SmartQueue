@@ -3,13 +3,27 @@ import 'package:intl/intl.dart';
 import '../services/admin_service.dart';
 import '../config/theme.dart';
 
-class QueueListCard extends StatelessWidget {
+class QueueListCard extends StatefulWidget {
   final String businessId;
 
   const QueueListCard({
     super.key,
     required this.businessId,
   });
+
+  @override
+  State<QueueListCard> createState() => _QueueListCardState();
+}
+
+class _QueueListCardState extends State<QueueListCard> {
+  final _adminService = AdminService();
+  late Stream<List<Map<String, dynamic>>> _queueStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _queueStream = _adminService.streamWaitingQueue(widget.businessId);
+  }
 
   String _formatTime(String timestamp) {
     try {
@@ -33,11 +47,9 @@ class QueueListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final adminService = AdminService();
-
     return Card(
       child: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: adminService.streamWaitingQueue(businessId),
+        stream: _queueStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Padding(
