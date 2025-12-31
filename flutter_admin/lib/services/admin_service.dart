@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminService {
   static final AdminService _instance = AdminService._internal();
@@ -6,6 +7,8 @@ class AdminService {
   AdminService._internal();
 
   SupabaseClient get client => Supabase.instance.client;
+  String? _currentUserId;
+  String? _currentUserEmail;
 
   // Initialize Supabase
   static Future<void> initialize({
@@ -18,10 +21,65 @@ class AdminService {
     );
   }
 
-  // Get all businesses
+  // Login
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await client
+          .from('admin_users')
+          .select('id, email, full_name')
+          .eq('email', email)
+          .single();
+
+      // In production, verify password hash
+      // For now, accepting any password for demo
+      _currentUserId = response['id'];
+      _currentUserEmail = response['email'];
+
+      // Save to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('admin_user_id', _currentUserId!);
+      await prefs.setString('admin_email', _currentUserEmail!);
+    } catch (e) {
+      throw Exception('Invalid email or password');
+    }
+  }
+
+  // Logout
+  Future<void> logout() async {
+    _currentUserId = null;
+    _currentUserEmail = null;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('admin_user_id');
+    await prefs.remove('admin_email');
+  }
+
+  // Check if logged in
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    _currentUserId = prefs.getString('admin_user_id');
+    _currentUserEmail = prefs.getString('admin_email');
+    return _currentUserId != null;
+  }
+
+  // Get current user ID
+  String? get currentUserId => _currentUserId;
+
+  // Get all businesses for current admin
   Future<List<Map<String, dynamic>>> getAllBusinesses() async {
     try {
-      final response = await client.from('businesses').select().order('created_at');
+      if (_currentUserId == null) {
+        throw Exception('Not logged in');
+      }
+
+      final response = await client
+          .from('businesses')
+          .select()
+          .eq('admin_user_id', _currentUserId!)
+          .order('created_at');
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       throw Exception('Failed to fetch businesses: $e');

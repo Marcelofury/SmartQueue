@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -16,6 +17,40 @@ class SupabaseService {
       url: url,
       anonKey: anonKey,
     );
+  }
+
+  // Save customer info locally
+  Future<void> saveCustomerInfo({
+    required String name,
+    required String phone,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('customer_name', name);
+    await prefs.setString('customer_phone', '+256$phone');
+  }
+
+  // Get customer info
+  Future<Map<String, String>?> getCustomerInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('customer_name');
+    final phone = prefs.getString('customer_phone');
+
+    if (name == null || phone == null) return null;
+
+    return {'name': name, 'phone': phone};
+  }
+
+  // Check if logged in
+  Future<bool> isLoggedIn() async {
+    final info = await getCustomerInfo();
+    return info != null;
+  }
+
+  // Logout
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('customer_name');
+    await prefs.remove('customer_phone');
   }
 
   // Join queue
