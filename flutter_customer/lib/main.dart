@@ -36,10 +36,26 @@ class SmartQueueApp extends StatelessWidget {
 // Router configuration
 final GoRouter _router = GoRouter(
   initialLocation: '/',
+  redirect: (context, state) async {
+    final supabaseService = SupabaseService();
+    final isLoggedIn = await supabaseService.isLoggedIn();
+    
+    final isLoginPage = state.matchedLocation == '/login';
+    
+    if (!isLoggedIn && !isLoginPage) {
+      return '/login';
+    }
+    
+    if (isLoggedIn && isLoginPage) {
+      return '/home';
+    }
+    
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const AuthWrapper(),
+      redirect: (context, state) => '/home',
     ),
     GoRoute(
       path: '/login',
@@ -117,15 +133,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
 
-    if (_isLoggedIn) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.go('/home');
-      });
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return const LoginScreen();
+    return _isLoggedIn ? const HomeScreen() : const LoginScreen();
   }
 }
