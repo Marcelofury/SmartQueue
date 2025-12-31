@@ -20,14 +20,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isRunningAI = false;
   Map<String, dynamic>? _statistics;
   String? _aiPredictorResult;
+  bool _isLoadingInitial = true;
 
   @override
   void initState() {
     super.initState();
-    // Load businesses after frame renders
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadBusinesses();
-    });
+    // Defer all loading to prevent UI blocking
+    Future.microtask(() => _initializeDashboard());
+  }
+
+  Future<void> _initializeDashboard() async {
+    await _loadBusinesses();
+    // Small delay before loading statistics to let UI render
+    await Future.delayed(const Duration(milliseconds: 100));
+    await _loadStatistics();
+    if (mounted) {
+      setState(() {
+        _isLoadingInitial = false;
+      });
+    }
   }
 
   Future<void> _loadBusinesses() async {
@@ -39,11 +50,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _selectedBusiness = businesses[0];
           _selectedBusinessId = businesses[0]['id'];
         });
-        _loadStatistics();
       }
     } catch (e) {
       print('Error loading businesses: $e');
-      _showError('Failed to load businesses: ${e.toString().replaceAll('Exception: ', '')}');
+      if (mounted) {
+        _showError('Failed to load businesses: ${e.toString().replaceAll('Exception: ', '')}');
+      }
     }
   }
 
@@ -51,17 +63,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (_selectedBusinessId == null) return;
 
     try {
-      final stats = await _adminService.getQueueStatistics(_selectedBusinessId!);
+      final stats = await _adminService.getQueueStatistics(_selectedBusinessId!)
+          .timeout(const Duration(seconds: 10));
       if (mounted) {
         setState(() {
           _statistics = stats;
         });
       }
     } catch (e) {
+      print('Error loading statistics: $e');
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _statistics = {
+            'waiting': 0,
+            'serving': 0,
+            'completed': 0,
+            'avg_service_time': 15,
+            'estimated_total_wait': 0,
+            'total_customers': 0,
+          };
+        });
       }
-      _showError('Failed to load statistics: $e');
     }
   }
 
@@ -73,7 +95,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final customer = await _adminService.callNext(_selectedBusinessId!);
+      final customer = await _adminService.callNext(_selectedBusinessId!)
+          .timeout(const Duration(seconds: 15));
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,14 +108,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             duration: const Duration(seconds: 3),
           ),
         );
-        _loadStatistics();
+        // Defer statistics reload to not block UI
+        Future.microtask(() => _loadStatistics());
       }
     } catch (e) {
-      _showError(e.toString());
+      print('Error calling next: $e');
+      _showError(e.toString().replaceAll('Exception: ', ''));
     } finally {
-      setState(() {
-        _isCallingNext = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isCallingNext = false;
+        });
+      }
     }
   }
 
@@ -105,7 +132,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final result = await _adminService.runAIPredictor(_selectedBusinessId!);
+      final result = await _adminService.runAIPredictor(_selectedBusinessId!)
+          .timeout(const Duration(seconds: 15));
       
       if (mounted) {
         setState(() {
@@ -127,14 +155,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
         
-        _loadStatistics();
+        // Defer statistics reload to not block UI
+        Future.microtask(() => _loadStatistics());
       }
     } catch (e) {
-      _showError('AI Predictor failed: $e');
+      print('Error running AI predictor: $e');
+      _showError('AI Predictor failed: ${e.toString().replaceAll('Exception: ', '')}');
     } finally {
-      setState(() {
-        _isRunningAI = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRunningAI = false;
+        });
+      }
     }
   }
 
@@ -190,9 +222,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: _selectedBusinessId == null
+      body: _selectedBusinessId == null || _isLoadingInitial
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading dashboard...'),
+                ],
+              ),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),

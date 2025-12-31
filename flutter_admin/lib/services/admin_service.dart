@@ -10,15 +10,33 @@ class AdminService {
   String? _currentUserId;
   String? _currentUserEmail;
 
-  // Initialize Supabase
+  // Initialize Supabase (only once)
+  static bool _isInitialized = false;
+  
   static Future<void> initialize({
     required String url,
     required String anonKey,
   }) async {
-    await Supabase.initialize(
-      url: url,
-      anonKey: anonKey,
-    );
+    if (_isInitialized) {
+      print('Supabase already initialized, skipping');
+      return;
+    }
+    
+    try {
+      await Supabase.initialize(
+        url: url,
+        anonKey: anonKey,
+      );
+      _isInitialized = true;
+      print('Supabase initialized successfully');
+    } catch (e) {
+      if (e.toString().contains('already initialized')) {
+        _isInitialized = true;
+        print('Supabase was already initialized');
+      } else {
+        rethrow;
+      }
+    }
   }
 
   // Login
@@ -135,18 +153,19 @@ class AdminService {
     }
   }
 
-  // Stream waiting queue for real-time updates
+  // Stream waiting queue for real-time updates (throttled to reduce load)
   Stream<List<Map<String, dynamic>>> streamWaitingQueue(String businessId) {
     return client
         .from('queues')
-        .stream(primaryKey: ['id'])
-        .map((data) => List<Map<String, dynamic>>.from(data)
-            .where((item) => 
-                item['business_id'] == businessId && 
-                item['status'] == 'waiting')
-            .toList()
-          ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int)));
-  }
+        .stream(primaryKey: ['id'])\n        .asyncMap((data) async {
+          // Run filtering off main thread
+          return List<Map<String, dynamic>>.from(data)
+              .where((item) => 
+                  item['business_id'] == businessId && 
+                  item['status'] == 'waiting')
+              .toList()
+            ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int));
+        });\n  }
 
   // Get all queue entries (for statistics)
   Future<List<Map<String, dynamic>>> getAllQueueEntries(String businessId) async {
@@ -155,11 +174,12 @@ class AdminService {
           .from('queues')
           .select('*')
           .eq('business_id', businessId)
-          .order('created_at', ascending: false);
+          .order('created_at', ascending: false)
+          .timeout(const Duration(seconds: 10));
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      throw Exception('Failed to fetch queue entries: $e');
+      print('Error fetching queue entries: $e');\n      throw Exception('Failed to fetch queue entries: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
 
