@@ -134,10 +134,6 @@ class AdminService {
       throw Exception('Failed to fetch queue: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
-    } catch (e) {
-      throw Exception('Failed to fetch waiting queue: $e');
-    }
-  }
 
   // Stream waiting queue for real-time updates
   Stream<List<Map<String, dynamic>>> streamWaitingQueue(String businessId) {
