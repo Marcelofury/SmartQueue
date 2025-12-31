@@ -25,11 +25,24 @@ class SupabaseService {
     required String phoneNumber,
   }) async {
     try {
+      // Calculate next position BEFORE inserting
+      final existingQueue = await client
+          .from('queues')
+          .select('position')
+          .eq('business_id', businessId)
+          .eq('status', 'waiting')
+          .order('position', ascending: false)
+          .limit(1);
+
+      final nextPosition = existingQueue.isEmpty ? 1 : (existingQueue.first['position'] as int) + 1;
+
+      // Insert with position
       final response = await client.from('queues').insert({
         'business_id': businessId,
         'customer_name': customerName,
         'phone_number': phoneNumber,
         'status': 'waiting',
+        'position': nextPosition,
       }).select('''
         *,
         businesses (
@@ -38,18 +51,7 @@ class SupabaseService {
         )
       ''').single();
 
-      // Get current position
-      final positionResponse = await client
-          .from('queues')
-          .select('id')
-          .eq('business_id', businessId)
-          .eq('status', 'waiting')
-          .order('created_at', ascending: true);
-
-      final position = positionResponse.indexWhere((q) => q['id'] == response['id']) + 1;
-
-      // Update position
-      await client.from('queues').update({'position': position}).eq('id', response['id']);
+      final position = response['position'] as int;
 
       final business = response['businesses'] as Map<String, dynamic>;
       final avgServiceTime = business['avg_service_time'] as int;
