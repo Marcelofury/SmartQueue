@@ -157,7 +157,8 @@ class AdminService {
   Stream<List<Map<String, dynamic>>> streamWaitingQueue(String businessId) {
     return client
         .from('queues')
-        .stream(primaryKey: ['id'])\n        .asyncMap((data) async {
+        .stream(primaryKey: ['id'])
+        .asyncMap((data) async {
           // Run filtering off main thread
           return List<Map<String, dynamic>>.from(data)
               .where((item) => 
@@ -165,7 +166,8 @@ class AdminService {
                   item['status'] == 'waiting')
               .toList()
             ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int));
-        });\n  }
+        });
+  }
 
   // Get all queue entries (for statistics)
   Future<List<Map<String, dynamic>>> getAllQueueEntries(String businessId) async {
@@ -179,7 +181,8 @@ class AdminService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching queue entries: $e');\n      throw Exception('Failed to fetch queue entries: ${e.toString().replaceAll('Exception: ', '')}');
+      print('Error fetching queue entries: $e');
+      throw Exception('Failed to fetch queue entries: ${e.toString().replaceAll('Exception: ', '')}');
     }
   }
 

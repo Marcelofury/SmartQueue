@@ -3,7 +3,6 @@ import '../services/admin_service.dart';
 import '../config/theme.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/queue_list_card.dart';
-import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
