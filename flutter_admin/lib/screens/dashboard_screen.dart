@@ -50,13 +50,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (mounted) {
         setState(() {
           _statistics = stats;
-          _isLoadingStats = false;
         });
       }
     } catch (e) {
-      setState(() {
-        _isLoadingStats = false;
-      });
+      if (mounted) {
+        setState(() {});
+      }
       _showError('Failed to load statistics: $e');
     }
   }

@@ -66,8 +66,8 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AdminTheme.primaryColor,
-              AdminTheme.primaryColor.withOpacity(0.7),
+              AdminTheme.primaryViolet,
+              AdminTheme.primaryViolet.withOpacity(0.7),
             ],
           ),
         ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Icon(
                             Icons.admin_panel_settings,
                             size: 80,
-                            color: AdminTheme.primaryColor,
+                            color: AdminTheme.primaryViolet,
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AdminTheme.primaryColor,
+                              color: AdminTheme.primaryViolet,
                             ),
                           ),
                           const SizedBox(height: 8),
