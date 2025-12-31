@@ -43,47 +43,47 @@ class AdminTheme {
       // Text theme
       textTheme: TextTheme(
         displayLarge: GoogleFonts.poppins(
-          fontSize: 32,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
           color: textPrimary,
         ),
         displayMedium: GoogleFonts.poppins(
-          fontSize: 28,
+          fontSize: 20,
           fontWeight: FontWeight.bold,
           color: textPrimary,
         ),
         displaySmall: GoogleFonts.poppins(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        headlineMedium: GoogleFonts.poppins(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: textPrimary,
-        ),
-        titleLarge: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        titleMedium: GoogleFonts.inter(
+        headlineMedium: GoogleFonts.poppins(
           fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
+        titleLarge: GoogleFonts.inter(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: textPrimary,
+        ),
+        titleMedium: GoogleFonts.inter(
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: textPrimary,
         ),
         bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.normal,
           color: textPrimary,
         ),
         bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
+          fontSize: 13,
           fontWeight: FontWeight.normal,
           color: textSecondary,
         ),
         labelLarge: GoogleFonts.inter(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
@@ -96,7 +96,7 @@ class AdminTheme {
         centerTitle: false,
         iconTheme: const IconThemeData(color: textPrimary),
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),

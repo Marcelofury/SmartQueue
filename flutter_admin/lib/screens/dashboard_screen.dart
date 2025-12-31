@@ -274,42 +274,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   // Statistics Cards
                   if (_statistics != null) ...[
-                    Row(
+                    Column(
                       children: [
-                        Expanded(
-                          child: StatCard(
-                            title: 'Waiting',
-                            value: '${_statistics!['waiting']}',
-                            icon: Icons.hourglass_empty,
-                            color: AdminTheme.statusWaiting,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                title: 'Waiting',
+                                value: '${_statistics!['waiting']}',
+                                icon: Icons.hourglass_empty,
+                                color: AdminTheme.statusWaiting,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: StatCard(
+                                title: 'Serving',
+                                value: '${_statistics!['serving']}',
+                                icon: Icons.person,
+                                color: AdminTheme.statusServing,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: StatCard(
-                            title: 'Serving',
-                            value: '${_statistics!['serving']}',
-                            icon: Icons.person,
-                            color: AdminTheme.statusServing,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: StatCard(
-                            title: 'Completed',
-                            value: '${_statistics!['completed']}',
-                            icon: Icons.check_circle,
-                            color: AdminTheme.statusDone,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: StatCard(
-                            title: 'Avg Service Time',
-                            value: '${_statistics!['avg_service_time']} min',
-                            icon: Icons.access_time,
-                            color: AdminTheme.primaryViolet,
-                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                title: 'Completed',
+                                value: '${_statistics!['completed']}',
+                                icon: Icons.check_circle,
+                                color: AdminTheme.statusDone,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: StatCard(
+                                title: 'Avg Service Time',
+                                value: '${_statistics!['avg_service_time']} min',
+                                icon: Icons.access_time,
+                                color: AdminTheme.primaryViolet,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
