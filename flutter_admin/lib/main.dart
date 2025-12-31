@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'config/theme.dart';
+import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/admin_service.dart';
 
@@ -24,7 +25,45 @@ class SmartQueueAdminApp extends StatelessWidget {
       title: 'SmartQueue Admin',
       debugShowCheckedModeBanner: false,
       theme: AdminTheme.lightTheme,
-      home: const DashboardScreen(),
+      home: const AuthWrapper(),
     );
+  }
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  final _adminService = AdminService();
+  bool _isLoading = true;
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final loggedIn = await _adminService.isLoggedIn();
+    setState(() {
+      _isLoggedIn = loggedIn;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return _isLoggedIn ? const DashboardScreen() : const LoginScreen();
   }
 }
