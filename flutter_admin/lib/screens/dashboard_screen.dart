@@ -191,11 +191,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.dashboard, color: AdminTheme.primaryViolet),
+            Icon(Icons.local_pharmacy, color: AdminTheme.primaryViolet),
             const SizedBox(width: 12),
             const Flexible(
               child: Text(
-                'SmartQueue Admin',
+                'SmartQueue Pharmacy Admin',
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -207,12 +207,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Chip(
                 avatar: Icon(
-                  Icons.business,
+                  Icons.local_pharmacy,
                   size: 18,
                   color: AdminTheme.primaryViolet,
                 ),
                 label: Text(
-                  _selectedBusiness!['name'],
+                  'SmartQueue Pharmacy',
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 backgroundColor: AdminTheme.paleViolet,
