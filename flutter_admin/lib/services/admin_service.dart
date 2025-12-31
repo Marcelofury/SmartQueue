@@ -43,7 +43,8 @@ class AdminService {
       await prefs.setString('admin_user_id', _currentUserId!);
       await prefs.setString('admin_email', _currentUserEmail!);
     } catch (e) {
-      throw Exception('Invalid email or password');
+      print('Login error: $e');
+      throw Exception('Invalid email or password. Error: $e');
     }
   }
 
