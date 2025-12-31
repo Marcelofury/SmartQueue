@@ -149,10 +149,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.dashboard, color: AdminTheme.primaryViolet),
             const SizedBox(width: 12),
-            const Text('SmartQueue Admin Dashboard'),
+            const Flexible(
+              child: Text(
+                'SmartQueue Admin',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         actions: [
