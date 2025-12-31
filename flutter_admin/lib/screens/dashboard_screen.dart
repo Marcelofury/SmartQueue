@@ -3,6 +3,7 @@ import '../services/admin_service.dart';
 import '../config/theme.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/queue_list_card.dart';
+import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -43,10 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _loadStatistics() async {
     if (_selectedBusinessId == null) return;
-
-    setState(() {
-      _isLoadingStats = true;
-    });
 
     try {
       final stats = await _adminService.getQueueStatistics(_selectedBusinessId!);

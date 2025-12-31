@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import '../services/supabase_service.dart';
 import '../config/theme.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Default business ID - in production, get from QR or selection
   final String _defaultBusinessId = '226b4b12-de98-40c8-a8ec-c3c24b0b3715';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomerInfo();
+  }
+
+  Future<void> _loadCustomerInfo() async {
+    final info = await _supabaseService.getCustomerInfo();
+    if (info != null && mounted) {
+      setState(() {
+        _nameController.text = info['name']!;
+        _phoneController.text = info['phone']!.replaceAll('+256', '');
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -144,6 +161,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('SmartQueue'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await _supabaseService.logout();
+              if (mounted) {
+                context.go('/login');
+              }
+            },
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
