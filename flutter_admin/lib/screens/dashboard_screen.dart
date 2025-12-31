@@ -20,6 +20,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _statistics;
   String? _aiPredictorResult;
   late Future<void> _initFuture;
+  bool _showQueueList = false;
 
   @override
   void initState() {
@@ -42,6 +43,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Load statistics in background
         _loadStatistics();
+        
+        // Defer queue list rendering to let dashboard render first
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            setState(() {
+              _showQueueList = true;
+            });
+          }
+        });
       }
     } catch (e) {
       print('Error loading businesses: $e');
@@ -373,10 +383,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                   const SizedBox(height: 16),
-                  QueueListCard(businessId: _selectedBusinessId!),
+                  if (_showQueueList)
+                    QueueListCard(businessId: _selectedBusinessId!)
+                  else
+                    const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
+          );
+        },
+      ),
     );
   }
 }
