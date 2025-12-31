@@ -13,7 +13,6 @@ class _USSDScreenState extends State<USSDScreen> {
   final _supabaseService = SupabaseService();
   String _currentMenu = 'main';
   String _displayText = '';
-  List<String> _menuHistory = [];
   Map<String, dynamic>? _queueData;
   
   // Input for manual entry

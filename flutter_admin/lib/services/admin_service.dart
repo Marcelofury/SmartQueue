@@ -49,10 +49,12 @@ class AdminService {
     return client
         .from('queues')
         .stream(primaryKey: ['id'])
-        .eq('business_id', businessId)
-        .eq('status', 'waiting')
-        .order('position', ascending: true)
-        .map((data) => List<Map<String, dynamic>>.from(data));
+        .map((data) => List<Map<String, dynamic>>.from(data)
+            .where((item) => 
+                item['business_id'] == businessId && 
+                item['status'] == 'waiting')
+            .toList()
+          ..sort((a, b) => (a['position'] as int).compareTo(b['position'] as int)));
   }
 
   // Get all queue entries (for statistics)

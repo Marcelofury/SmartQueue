@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../services/admin_service.dart';
 import '../config/theme.dart';
 import '../widgets/stat_card.dart';
@@ -16,7 +15,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _adminService = AdminService();
   String? _selectedBusinessId;
   Map<String, dynamic>? _selectedBusiness;
-  bool _isLoadingStats = false;
   bool _isCallingNext = false;
   bool _isRunningAI = false;
   Map<String, dynamic>? _statistics;
