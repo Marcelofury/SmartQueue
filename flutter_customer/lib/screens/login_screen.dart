@@ -67,8 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryColor,
-              AppTheme.primaryColor.withOpacity(0.7),
+              AppTheme.primaryViolet,
+              AppTheme.primaryViolet.withOpacity(0.7),
             ],
           ),
         ),
@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Icon(
                             Icons.people_alt,
                             size: 80,
-                            color: AppTheme.primaryColor,
+                            color: AppTheme.primaryViolet,
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                              color: AppTheme.primaryViolet,
                             ),
                           ),
                           const SizedBox(height: 8),
