@@ -87,11 +87,16 @@ app.post('/api/queue/join', async (req, res) => {
     }
 
     // Get current queue count to determine position
-    const { count } = await supabase
+    const { count, error: countError } = await supabase
       .from('queues')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact' }) // More robust counting
       .eq('business_id', business_id)
       .eq('status', 'waiting');
+
+    if (countError) {
+      console.error('Error counting queue:', countError);
+      return res.status(500).json({ error: 'Failed to determine queue position.', details: countError.message });
+    }
 
     const position = (count || 0) + 1;
 
