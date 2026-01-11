@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             keyboardType: TextInputType.phone,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(10),
+                              LengthLimitingTextInputFormatter(9),
                             ],
                             decoration: InputDecoration(
                               labelText: 'Phone Number',
@@ -149,14 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              helperText: 'Enter 10 digits (e.g., 7XXXXXXXX)',
+                              helperText: 'Enter 9 digits (e.g., 701234567)',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your phone number';
                               }
-                              if (value.length != 10) {
-                                return 'Phone number must be 10 digits';
+                              if (value.length != 9) {
+                                return 'Phone number must be 9 digits';
                               }
                               if (!value.startsWith('7')) {
                                 return 'Phone number must start with 7';

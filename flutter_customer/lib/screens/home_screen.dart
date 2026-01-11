@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
 import '../services/supabase_service.dart';
@@ -305,15 +306,23 @@ class _HomeScreenState extends State<HomeScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Phone Number',
                         prefixIcon: Icon(Icons.phone_outlined),
-                        hintText: 'Enter your phone number',
+                        prefixText: '+256 ',
+                        hintText: '701234567',
                       ),
                       keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(9),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please enter your phone number';
                         }
-                        if (value.trim().length < 10) {
-                          return 'Please enter a valid phone number';
+                        if (value.trim().length != 9) {
+                          return 'Phone number must be 9 digits';
+                        }
+                        if (!value.trim().startsWith('7')) {
+                          return 'Phone number must start with 7';
                         }
                         return null;
                       },
