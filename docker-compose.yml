@@ -39,10 +39,10 @@ services:
       # Supabase credentials (if using Supabase instead of local Postgres)
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-      # Twilio credentials for SMS
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
-      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      # Africa's Talking credentials for SMS & USSD
+      AT_USERNAME: ${AT_USERNAME}
+      AT_API_KEY: ${AT_API_KEY}
+      AT_SENDER_ID: ${AT_SENDER_ID}
     ports:
       - "3000:3000"
     networks:
