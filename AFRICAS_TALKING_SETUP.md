@@ -54,7 +54,7 @@ For production SMS with a custom sender name:
 ### 5. Set Up USSD (Production Only)
 
 1. Go to **USSD** → **Create Channel**
-2. Request a USSD code (e.g., `*384*12345#`)
+2. Request a USSD code (e.g., `*384*35612#`)
 3. Set your callback URL: `https://your-domain.com/api/ussd`
 4. Wait for approval from telecom operators (MTN, Airtel Uganda)
 
@@ -70,7 +70,7 @@ For production SMS with a custom sender name:
 **Test USSD:**
 ```bash
 # Dial your assigned USSD code on a registered test number
-*384*12345#
+*384*35612#
 ```
 
 ## 💰 Pricing (Uganda)
@@ -96,7 +96,7 @@ For production SMS with a custom sender name:
 ## 📱 USSD Menu Structure
 
 ```
-*384*12345#
+*384*35612#
 ├── 1. Join Queue
 │   ├── Select business
 │   └── Enter name
