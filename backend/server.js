@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
-const twilioService = require('./services/twilioService');
+const smsService = require('./services/africastalkingService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -232,8 +232,8 @@ app.post('/api/queue/next/:business_id', async (req, res) => {
         .eq('id', business_id)
         .single();
 
-      if (twilioService.isEnabled()) {
-        await twilioService.sendTurnNotification(
+      if (smsService.isEnabled()) {
+        await smsService.sendTurnNotification(
           nextCustomer.phone_number,
           nextCustomer.customer_name,
           business?.name || 'the service center'
@@ -247,7 +247,7 @@ app.post('/api/queue/next/:business_id', async (req, res) => {
     res.json({
       message: 'Next customer called',
       customer: updatedCustomer,
-      sms_sent: twilioService.isEnabled()
+      sms_sent: smsService.isEnabled()
     });
 
   } catch (error) {
