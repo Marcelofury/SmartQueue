@@ -334,3 +334,159 @@ app.get('/api/queue/list/:business_id', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`SmartQueue server running on port ${PORT}`);
 });
+
+// ==================== USSD ENDPOINT ====================
+
+/**
+ * USSD CALLBACK
+ * POST /api/ussd
+ * Handle USSD sessions from Africa's Talking
+ */
+app.post('/api/ussd', async (req, res) => {
+  try {
+    const { sessionId, serviceCode, phoneNumber, text } = req.body;
+
+    let response = '';
+
+    if (text === '') {
+      // Initial menu
+      response = `CON Welcome to SmartQueue
+1. Join Queue
+2. Check My Position
+3. Find Business`;
+    } else if (text === '1') {
+      // Show available businesses
+      const { data: businesses } = await supabase
+        .from('businesses')
+        .select('id, name')
+        .limit(5);
+
+      if (businesses && businesses.length > 0) {
+        response = 'CON Select a business:\n';
+        businesses.forEach((business, index) => {
+          response += `${index + 1}. ${business.name}\n`;
+        });
+      } else {
+        response = 'END No businesses available at the moment.';
+      }
+    } else if (text.startsWith('1*')) {
+      // User selected a business to join
+      const parts = text.split('*');
+      if (parts.length === 2) {
+        // Ask for name
+        response = 'CON Enter your name:';
+      } else if (parts.length === 3) {
+        // Process queue join
+        const businessIndex = parseInt(parts[1]) - 1;
+        const customerName = parts[2];
+
+        // Get businesses again to match the index
+        const { data: businesses } = await supabase
+          .from('businesses')
+          .select('id, name, avg_service_time')
+          .limit(5);
+
+        if (businesses && businesses[businessIndex]) {
+          const business = businesses[businessIndex];
+
+          // Get current queue count
+          const { count } = await supabase
+            .from('queues')
+            .select('id', { count: 'exact' })
+            .eq('business_id', business.id)
+            .eq('status', 'waiting');
+
+          const position = (count || 0) + 1;
+          const waitTime = calculateWaitTime(position, business.avg_service_time);
+
+          // Add to queue
+          await supabase
+            .from('queues')
+            .insert({
+              business_id: business.id,
+              customer_name: customerName,
+              phone_number: phoneNumber,
+              position,
+              status: 'waiting'
+            });
+
+          // Send confirmation SMS
+          try {
+            if (smsService.isEnabled()) {
+              await smsService.sendQueueConfirmation(
+                phoneNumber,
+                customerName,
+                position,
+                waitTime
+              );
+            }
+          } catch (smsError) {
+            console.error('SMS confirmation failed:', smsError.message);
+          }
+
+          response = `END Success! You're #${position} at ${business.name}. Wait: ~${waitTime} min. We'll SMS you when ready.`;
+        } else {
+          response = 'END Invalid business selection.';
+        }
+      }
+    } else if (text === '2') {
+      // Check position - ask for queue ID or use phone number
+      response = 'CON Checking your position...';
+
+      // Find active queue entry for this phone number
+      const { data: queueEntry } = await supabase
+        .from('queues')
+        .select(`
+          *,
+          businesses (name, avg_service_time)
+        `)
+        .eq('phone_number', phoneNumber)
+        .in('status', ['waiting', 'serving'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (queueEntry) {
+        if (queueEntry.status === 'serving') {
+          response = `END You're being served at ${queueEntry.businesses.name}. Please proceed to the counter!`;
+        } else {
+          const waitTime = calculateWaitTime(
+            queueEntry.position,
+            queueEntry.businesses.avg_service_time
+          );
+          response = `END You're #${queueEntry.position} at ${queueEntry.businesses.name}. Wait: ~${waitTime} min.`;
+        }
+      } else {
+        response = 'END You\'re not in any queue currently.';
+      }
+    } else if (text === '3') {
+      // Find business
+      const { data: businesses } = await supabase
+        .from('businesses')
+        .select('name, location')
+        .limit(5);
+
+      if (businesses && businesses.length > 0) {
+        response = 'END Available businesses:\n';
+        businesses.forEach((business, index) => {
+          response += `${index + 1}. ${business.name}\n   Location: ${business.location || 'N/A'}\n`;
+        });
+      } else {
+        response = 'END No businesses found.';
+      }
+    } else {
+      // Invalid option
+      response = 'END Invalid option. Please try again.';
+    }
+
+    // Set content type for Africa's Talking USSD
+    res.set('Content-Type', 'text/plain');
+    res.send(response);
+
+  } catch (error) {
+    console.error('USSD error:', error);
+    res.set('Content-Type', 'text/plain');
+    res.send('END An error occurred. Please try again later.');
+  }
+});
+
