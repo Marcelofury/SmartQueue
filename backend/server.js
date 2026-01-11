@@ -120,11 +120,27 @@ app.post('/api/queue/join', async (req, res) => {
       return res.status(500).json({ error: 'Failed to join queue', details: insertError.message });
     }
 
+    // Send SMS confirmation
+    try {
+      if (smsService.isEnabled()) {
+        await smsService.sendQueueConfirmation(
+          phone_number,
+          customer_name,
+          position,
+          waitTime
+        );
+      }
+    } catch (smsError) {
+      console.error('SMS confirmation failed:', smsError.message);
+      // Don't fail the request if SMS fails
+    }
+
     res.status(201).json({
       message: 'Successfully joined the queue',
       queue_entry: queueEntry,
       estimated_wait_time: waitTime,
-      wait_time_unit: 'minutes'
+      wait_time_unit: 'minutes',
+      sms_sent: smsService.isEnabled()
     });
 
   } catch (error) {
