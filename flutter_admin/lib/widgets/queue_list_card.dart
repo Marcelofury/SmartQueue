@@ -99,7 +99,7 @@ class _QueueListCardState extends State<QueueListCard> {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.inbox_outlined,
                         size: 48,
                         color: AdminTheme.textLight,
@@ -128,7 +128,7 @@ class _QueueListCardState extends State<QueueListCard> {
                 // Header
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     border: Border(
                       bottom: BorderSide(color: AdminTheme.borderColor),
                     ),
@@ -149,7 +149,7 @@ class _QueueListCardState extends State<QueueListCard> {
                           color: AdminTheme.statusWaiting.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
@@ -157,7 +157,7 @@ class _QueueListCardState extends State<QueueListCard> {
                               size: 8,
                               color: AdminTheme.statusWaiting,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4),
                             Text(
                               'Live Updates',
                               style: TextStyle(
@@ -260,7 +260,7 @@ class _QueueListCardState extends State<QueueListCard> {
                           padding: const EdgeInsets.only(top: 2),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.phone,
                                 size: 12,
                                 color: AdminTheme.textSecondary,
@@ -268,13 +268,13 @@ class _QueueListCardState extends State<QueueListCard> {
                               const SizedBox(width: 2),
                               Text(
                                 customer['phone_number'],
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AdminTheme.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
                               const SizedBox(width: 10),
-                              Icon(
+                              const Icon(
                                 Icons.access_time,
                                 size: 12,
                                 color: AdminTheme.textSecondary,
@@ -282,7 +282,7 @@ class _QueueListCardState extends State<QueueListCard> {
                               const SizedBox(width: 2),
                               Text(
                                 _formatTime(customer['created_at']),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AdminTheme.textSecondary,
                                   fontSize: 12,
                                 ),
@@ -291,7 +291,7 @@ class _QueueListCardState extends State<QueueListCard> {
                           ),
                         ),
                         trailing: isFirst
-                            ? Icon(
+                            ? const Icon(
                                 Icons.arrow_forward,
                                 color: AdminTheme.primaryViolet,
                                 size: 18,

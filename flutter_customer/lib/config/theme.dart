@@ -22,12 +22,10 @@ class AppTheme {
         primary: primaryViolet,
         secondary: lightViolet,
         surface: white,
-        background: offWhite,
         error: Colors.red.shade600,
         onPrimary: white,
         onSecondary: white,
         onSurface: darkGray,
-        onBackground: darkGray,
       ),
       scaffoldBackgroundColor: offWhite,
       

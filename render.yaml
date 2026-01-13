@@ -9,15 +9,20 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
+      # Server Configuration
       - key: PORT
         value: 3000
+      
+      # Supabase (set in Render dashboard)
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
+      
+      # Africa's Talking (set in Render dashboard)
       - key: AT_USERNAME
-        sync: false
+        value: sandbox  # Use 'sandbox' for testing, change in dashboard for production
       - key: AT_API_KEY
         sync: false
       - key: AT_SENDER_ID
-        sync: false
+        value: SMARTQUEUE  # Optional: your approved sender ID

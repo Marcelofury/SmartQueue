@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.people_alt,
                             size: 80,
                             color: AppTheme.primaryViolet,

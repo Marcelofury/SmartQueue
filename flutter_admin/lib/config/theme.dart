@@ -31,12 +31,10 @@ class AdminTheme {
         primary: primaryViolet,
         secondary: lightViolet,
         surface: cardBg,
-        background: lightBg,
         error: Colors.red.shade600,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textPrimary,
-        onBackground: textPrimary,
       ),
       scaffoldBackgroundColor: lightBg,
       

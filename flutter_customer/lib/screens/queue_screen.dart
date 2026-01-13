@@ -91,7 +91,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: AppTheme.primaryViolet),
+                  const CircularProgressIndicator(color: AppTheme.primaryViolet),
                   const SizedBox(height: 16),
                   Text(
                     'Loading queue status...',
@@ -219,7 +219,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
                     child: Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [AppTheme.primaryViolet, AppTheme.lightViolet],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -276,7 +276,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
                               color: AppTheme.paleViolet,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.access_time,
                               color: AppTheme.primaryViolet,
                               size: 32,
@@ -319,7 +319,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.info_outline,
                           color: AppTheme.primaryViolet,
                         ),
@@ -355,7 +355,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.notifications_active,
                           size: 64,
                           color: AppTheme.white,
@@ -388,7 +388,7 @@ class _QueueScreenState extends State<QueueScreen> with SingleTickerProviderStat
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.done_all,
                           size: 64,
                           color: AppTheme.mediumGray,

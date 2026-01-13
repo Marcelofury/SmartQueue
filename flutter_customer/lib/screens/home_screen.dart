@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 40),
               
               // Logo/Title
-              Icon(
+              const Icon(
                 Icons.queue_outlined,
                 size: 80,
                 color: AppTheme.primaryViolet,
@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 height: 180,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AppTheme.primaryViolet, AppTheme.lightViolet],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.qr_code_scanner,
                           size: 64,
                           color: AppTheme.white,
@@ -261,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Divider
               Row(
                 children: [
-                  Expanded(child: Divider(color: AppTheme.lightGray)),
+                  const Expanded(child: Divider(color: AppTheme.lightGray)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
-                  Expanded(child: Divider(color: AppTheme.lightGray)),
+                  const Expanded(child: Divider(color: AppTheme.lightGray)),
                 ],
               ),
               
@@ -492,7 +492,7 @@ class QRScannerOverlay extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 4;
 
-    final cornerLength = 30.0;
+    const cornerLength = 30.0;
 
     // Top-left
     canvas.drawLine(

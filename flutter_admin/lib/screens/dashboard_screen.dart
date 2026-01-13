@@ -188,12 +188,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.local_pharmacy, color: AdminTheme.primaryViolet),
-            const SizedBox(width: 12),
-            const Flexible(
+            SizedBox(width: 12),
+            Flexible(
               child: Text(
                 'SmartQueue Pharmacy Admin',
                 overflow: TextOverflow.ellipsis,
@@ -203,8 +203,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           if (_selectedBusiness != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Chip(
                 avatar: Icon(
                   Icons.local_pharmacy,
@@ -213,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 label: Text(
                   'SmartQueue Pharmacy',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 backgroundColor: AdminTheme.paleViolet,
               ),
@@ -382,7 +382,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.lightbulb,
                             color: AdminTheme.primaryViolet,
                             size: 32,

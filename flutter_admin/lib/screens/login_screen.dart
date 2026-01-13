@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.admin_panel_settings,
                             size: 80,
                             color: AdminTheme.primaryViolet,
